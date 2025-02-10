@@ -17,7 +17,7 @@ class UserAuthController extends Controller
 {
     public function authenticate(UserAuthRequest $request)
     {
-        try{
+       try{
             $credentials = $request->only('email', 'password');
             $user = User::where('email', $request->email)->first();
             if (!Auth::attempt($credentials)||!$user) {
@@ -43,7 +43,6 @@ class UserAuthController extends Controller
                 message:'Login failed',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
             );
-
         }
 
     }
