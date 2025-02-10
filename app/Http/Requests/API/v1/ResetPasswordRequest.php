@@ -23,7 +23,7 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'email' => 'required|email|exists:users,email',
-            'password'=>'required|string|min:6|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+            'password'=>'required|string|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
             'confirm_password' => 'required|same:password'
         ];
     }
