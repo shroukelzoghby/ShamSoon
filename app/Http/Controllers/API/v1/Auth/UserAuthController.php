@@ -11,4 +11,8 @@ class UserAuthController extends Controller
     {
 
     }
+    public function logout(Request $request)
+    {
+
+    }
 }
