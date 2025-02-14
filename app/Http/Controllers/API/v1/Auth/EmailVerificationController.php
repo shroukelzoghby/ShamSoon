@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Models\User;
-use App\Notifications\Auth\EmailVerificationNotification;
 use Ichtrojan\Otp\Otp;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\v1\CheckOTPRequest;
-use Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Notifications\Auth\EmailVerificationNotification;
 
 class EmailVerificationController extends Controller
 {
