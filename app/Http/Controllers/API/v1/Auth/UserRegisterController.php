@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1\Auth;
 
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\API\v1\UserRegisterRequest;
 
@@ -12,13 +13,11 @@ class UserRegisterController extends Controller
     public function __invoke(UserRegisterRequest $request)
     {
         try {
-            $validated = $request->validated();
             $user = User::create([
-                'username' => $validated['username'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'password' => $validated['password']
-
+                'username' => $request->username,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password)
             ]);
             $token = $user->createToken('authToken')->plainTextToken;
             return successResponse(
