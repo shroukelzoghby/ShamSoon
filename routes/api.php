@@ -1,23 +1,28 @@
 <?php
 
-use App\Http\Controllers\API\v1\Auth\UserAuthController;
-use App\Http\Controllers\API\v1\Auth\UserRegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\v1\Auth\UserAuthController;
+use App\Http\Controllers\API\v1\Auth\UserRegisterController;
+use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 
 Route::prefix('users')
     ->name('users.')
-    ->group(function (){
+    ->group(function () {
         // Public routes - No Need for authentication
-        Route::post('/register',UserRegisterController::class)
+        Route::post('/register', UserRegisterController::class)
             ->name('register');
-        Route::post('/login',[UserAuthController::class,'authenticate'])
+        Route::post('/login', [UserAuthController::class, 'authenticate'])
             ->name('login');
 
         // Private routes - Need authentication
         Route::middleware('auth:sanctum')
             ->group(function () {
-                Route::post('/logout',[UserAuthController::class,'logout'])->name('logout');
-            });
-});
+            Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
+            Route::post('/email/verify/send', [EmailVerificationController::class, 'sendEmailVerification'])
+                ->name('email.verification.send');
+            Route::post('/email/verify', [EmailVerificationController::class, 'VerifyEmail'])
+                ->name('email.verify');
+        });
+    });
 
