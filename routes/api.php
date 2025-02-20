@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\v1\Auth\CheckOTPController;
+use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
+use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -23,6 +26,9 @@ Route::prefix('users')
                 ->name('email.verification.send');
             Route::post('/email/verify', [EmailVerificationController::class, 'VerifyEmail'])
                 ->name('email.verify');
+            Route::post('/forget-password', [ForgetPasswordController::class, 'forgetPassword']);
+            Route::post('/check-otp', [CheckOTPController::class, 'verifyOTP']);
+            Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
         });
     });
 
