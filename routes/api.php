@@ -17,6 +17,9 @@ Route::prefix('users')
             ->name('register');
         Route::post('/login', [UserAuthController::class, 'authenticate'])
             ->name('login');
+        Route::post('/forget-password', [ForgetPasswordController::class, 'forgetPassword']);
+        Route::post('/check-otp', [CheckOTPController::class, 'verifyOTP']);
+        Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 
         // Private routes - Need authentication
         Route::middleware('auth:sanctum')
@@ -26,9 +29,7 @@ Route::prefix('users')
                 ->name('email.verification.send');
             Route::post('/email/verify', [EmailVerificationController::class, 'VerifyEmail'])
                 ->name('email.verify');
-            Route::post('/forget-password', [ForgetPasswordController::class, 'forgetPassword']);
-            Route::post('/check-otp', [CheckOTPController::class, 'verifyOTP']);
-            Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+
         });
     });
 
