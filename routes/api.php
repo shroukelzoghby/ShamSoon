@@ -3,6 +3,8 @@
 use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
+use App\Http\Controllers\API\v1\Community\CommentController;
+use App\Http\Controllers\API\v1\Community\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -29,6 +31,15 @@ Route::prefix('users')
                 ->name('email.verification.send');
             Route::post('/email/verify', [EmailVerificationController::class, 'VerifyEmail'])
                 ->name('email.verify');
+
+            // Post Routes
+            Route::apiResource('posts', PostController::class);
+
+            // Comment Routes
+            Route::post('posts/{post}/comments', [CommentController::class, 'store']);
+            Route::put('comments/{comment}', [CommentController::class, 'update']);
+            Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
+
 
         });
     });
