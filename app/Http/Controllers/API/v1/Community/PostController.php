@@ -94,8 +94,21 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
-        //
+        try {
+            $this->authorize('delete', $post); // Ensure the user owns the post
+            $post->delete();
+            return successResponse(
+                message: 'Post deleted successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while deleting the post.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
+
 }
