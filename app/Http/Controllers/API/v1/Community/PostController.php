@@ -54,9 +54,20 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Post $id)
     {
-        //
+        try {
+            return successResponse(
+                data: ['post' => $id->load('user', 'comments.user')],
+                message: 'Post retrieved successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while fetching the post.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     /**
