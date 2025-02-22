@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1\Community;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\v1\PostRequest;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,19 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $posts = Post::with('user', 'comments.user')->latest()->get();
+            return successResponse(
+                data: ['posts' => $posts],
+                message: 'Posts retrieved successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while fetching posts.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     /**
