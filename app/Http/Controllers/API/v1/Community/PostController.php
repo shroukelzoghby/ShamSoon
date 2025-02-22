@@ -73,9 +73,22 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PostRequest $request, Post $post)
     {
-        //
+        try {
+            $this->authorize('update', $post);
+            $post->update($request->validated());
+            return successResponse(
+                data: ['post' => $post],
+                message: 'Post updated successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while updating the post.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     /**
