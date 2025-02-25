@@ -65,9 +65,22 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CommentRequest $request, Comment $comment)
     {
-        //
+        try {
+            $this->authorize('update', $comment);
+            $comment->update($request->validated());
+            return successResponse(
+                data: ['comment' => $comment],
+                message: 'comment updated successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while updating the comment.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     /**
