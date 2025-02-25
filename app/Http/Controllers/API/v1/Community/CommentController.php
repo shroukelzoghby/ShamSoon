@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\v1\Community;
 use App\Http\Requests\API\v1\CommentRequest;
 use App\Models\Post;
 use App\Models\Comment;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,14 +51,6 @@ class CommentController extends Controller
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
