@@ -36,9 +36,7 @@ Route::prefix('users')
             Route::apiResource('posts', PostController::class);
 
             // Comment Routes
-            Route::post('posts/{post}/comments', [CommentController::class, 'store']);
-            Route::put('comments/{comment}', [CommentController::class, 'update']);
-            Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
+            Route::apiResource('posts.comments', CommentController::class)->except(['show']);
 
 
         });
