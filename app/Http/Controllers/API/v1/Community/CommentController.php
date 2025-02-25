@@ -86,8 +86,20 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Comment $comment,Post $post)
     {
-        //
+        try {
+            $this->authorize('delete', $comment); 
+            $comment->delete();
+            return successResponse(
+                message: 'comment deleted successfully',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while deleting the comment.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
