@@ -20,6 +20,7 @@ class SocialiteController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            //signed up with google before
             $user = Socialite::driver('google')->stateless()->user();
             $finduser = User::where('social_id', $user->id)->first();
             if ($finduser) {
@@ -33,6 +34,7 @@ class SocialiteController extends Controller
                     statusCode: Response::HTTP_OK
                 );
             }
+            //signed up normally before
             $existingUser = User::where('email', $user->email)->first();
             if ($existingUser) {
                 $existingUser->update([
