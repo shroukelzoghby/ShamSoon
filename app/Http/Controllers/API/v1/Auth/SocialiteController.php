@@ -15,7 +15,14 @@ class SocialiteController extends Controller
 {
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        $redirecturl=Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+        return successResponse(
+            data:[
+                'url'=>$redirecturl
+            ],
+            message:'Use this URL to authenticate with Google.',
+            statusCode:Response::HTTP_OK
+        );
     }
     public function handleGoogleCallback()
     {
