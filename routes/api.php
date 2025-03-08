@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\v1\Auth\SocialiteController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use Illuminate\Http\Request;
@@ -22,6 +23,9 @@ Route::prefix('users')
         Route::post('/forget-password', [ForgetPasswordController::class, 'forgetPassword']);
         Route::post('/check-otp', [CheckOTPController::class, 'verifyOTP']);
         Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+        Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
+        Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
+
 
         // Private routes - Need authentication
         Route::middleware('auth:sanctum')
