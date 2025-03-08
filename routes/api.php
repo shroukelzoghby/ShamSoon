@@ -6,6 +6,7 @@ use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SocialiteController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
+use App\Http\Controllers\API\V1\FeedbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -41,6 +42,9 @@ Route::prefix('users')
 
             // Comment Routes
             Route::apiResource('posts.comments', CommentController::class)->except(['show']);
+
+            //FeedBack
+            Route::apiResource('feedbacks', FeedbackController::class)->only(['store']);
 
 
         });

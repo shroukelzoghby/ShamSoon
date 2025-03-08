@@ -7,6 +7,7 @@ use App\Http\Requests\API\v1\StoreFeedbackRequest;
 use App\Models\Feedback;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class FeedbackController extends Controller
@@ -17,14 +18,19 @@ class FeedbackController extends Controller
      */
     public function store(StoreFeedbackRequest $request)
     {
-        $user = User::find($request->user_id);
+        $user = Auth::user();
         if (!$user) {
             return errorResponse(
-                message: "User not found",
-                statusCode: Response::HTTP_NOT_FOUND
+                message: 'unauthenticated',
+                statusCode: Response::HTTP_UNAUTHORIZED
             );
         }
-        $feedback = Feedback::create($request->validated());
+        $feedback = Feedback::create([
+                'user_id' => $user->id,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'message' => $request->message,
+            ]);
         return successResponse(
             data: $feedback,
             message: "Feedback submitted successfully",
