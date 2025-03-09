@@ -4,9 +4,11 @@ use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SocialiteController;
+use App\Http\Controllers\API\v1\CarbonController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\V1\FeedbackController;
+use App\Http\Controllers\API\v1\SolarPanelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -45,6 +47,14 @@ Route::prefix('users')
 
             //FeedBack
             Route::apiResource('feedbacks', FeedbackController::class)->only(['store']);
+
+            //SolarPanel
+            Route::get('solarPanels', [SolarPanelController::class, 'index'])->name('solarPanels');
+            Route::get('solarPanels/{id}', [SolarPanelController::class, 'show'])->name('solarPanel');
+
+            //Carbon
+            Route::post('/carbon', [CarbonController::class, 'store'])->name('carbon.store');
+            Route::get('/carbons/{id}', [CarbonController::class, 'show'])->name('carbon.show');
 
 
         });
