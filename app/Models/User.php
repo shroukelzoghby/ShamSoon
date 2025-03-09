@@ -62,8 +62,8 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class);
     }
 
-    public function solar_panels()
+    public function solarPanels()
     {
-        return $this->hasMany(Feedback::class);
+        return $this->hasMany(SolarPanel::class);
     }
 }

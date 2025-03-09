@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\Auth\SocialiteController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\V1\FeedbackController;
+use App\Http\Controllers\API\v1\SolarPanelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -45,6 +46,10 @@ Route::prefix('users')
 
             //FeedBack
             Route::apiResource('feedbacks', FeedbackController::class)->only(['store']);
+
+            //SolarPanel
+            Route::get('solarPanels', [SolarPanelController::class, 'index'])->name('solarPanels');
+            Route::get('solarPanels/{id}', [SolarPanelController::class, 'show'])->name('solarPanel');
 
 
         });
