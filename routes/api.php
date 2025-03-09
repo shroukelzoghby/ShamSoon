@@ -4,6 +4,7 @@ use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SocialiteController;
+use App\Http\Controllers\API\v1\CarbonController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\V1\FeedbackController;
@@ -50,6 +51,10 @@ Route::prefix('users')
             //SolarPanel
             Route::get('solarPanels', [SolarPanelController::class, 'index'])->name('solarPanels');
             Route::get('solarPanels/{id}', [SolarPanelController::class, 'show'])->name('solarPanel');
+
+            //Carbon
+            Route::post('/carbon', [CarbonController::class, 'store'])->name('carbon.store');
+            Route::get('/carbons/{id}', [CarbonController::class, 'show'])->name('carbon.show');
 
 
         });
