@@ -2,30 +2,44 @@
 
 namespace App\Http\Controllers\API\v1\Auth;
 
+use App\Http\Resources\API\v1\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\API\v1\UserRegisterRequest;
 
 class UserRegisterController extends Controller
 {
-    public function __invoke(UserRegisterRequest $request)
+    public function __invoke(UserRegisterRequest $request): JsonResponse
     {
         try {
-            $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password)
-            ]);
+
+            $user = DB::transaction(function () use ($request) {
+                $roleId = Role::where('name', 'user')->value('id');
+
+                if (!$roleId) {
+                    throw new Exception('Role not found', Response::HTTP_NOT_FOUND);
+                }
+
+                // Create a new user
+                return User::create(
+                    $request->validated() + ['role_id' => $roleId]
+                );
+
+            });
             $token = $user->createToken('authToken')->plainTextToken;
+
             return successResponse(
-                data: [
-                    'user' => $user,
+                data:[
+                    new UserResource($user) ,
                     'token' => $token,
-                ],
-                message: 'Registration successful',
+                    ],
+                message: 'User created successfully',
                 statusCode: Response::HTTP_CREATED
             );
 
