@@ -13,7 +13,7 @@ class SendMonthlyReminder extends Command
      *
      * @var string
      */
-    protected $signature = 'app:send-monthly-reminder';
+    protected $signature = 'reminder:monthly';
 
     /**
      * The console command description.
