@@ -9,6 +9,7 @@ use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\V1\FeedbackController;
 use App\Http\Controllers\API\v1\SolarPanelController;
+use App\Http\Controllers\API\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
@@ -55,6 +56,8 @@ Route::prefix('users')
             //Carbon
             Route::post('/carbon', [CarbonController::class, 'store'])->name('carbon.store');
             Route::get('/carbons/{id}', [CarbonController::class, 'show'])->name('carbon.show');
+
+            Route::post('/store-fcm-token', [UserController::class, 'storeFcmToken']);
 
 
         });
