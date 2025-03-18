@@ -30,7 +30,6 @@ class NotificationController extends Controller
                 );
             }
         }
-
         return successResponse(
         message: "AI result notification sent",
         statusCode: Response::HTTP_OK
