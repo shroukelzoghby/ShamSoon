@@ -19,14 +19,17 @@ class FirebaseNotificationService
         $this->messaging = $factory->createMessaging();
     }
 
-    public function sendNotification($token, $title, $body, $data = [])
+    public function sendMulticastNotification(array $tokens, $title, $body, $data = [])
     {
         try {
-            $message = CloudMessage::withTarget('token', $token)
-                ->withNotification(Notification::create($title, $body))
-                ->withData($data);
+            $messages = [];
+            foreach ($tokens as $token) {
+                $messages[] = CloudMessage::withTarget('token', $token)
+                    ->withNotification(Notification::create($title, $body))
+                    ->withData($data);
+            }
 
-            $this->messaging->send($message);
+            $this->messaging->sendAll($messages);
             return true;
         } catch (Exception $e) {
             throw new Exception("Failed to send notification: " . $e->getMessage());
