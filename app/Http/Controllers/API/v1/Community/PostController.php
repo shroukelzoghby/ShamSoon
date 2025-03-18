@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\v1\Community;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\v1\PostRequest;
 use App\Models\Post;
+use App\Models\User;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,9 +40,21 @@ class PostController extends Controller
     {
         try {
             $post = Auth::user()->posts()->create($request->validated());
+
+
+            $tokens = User::whereNotNull('fcm_token')
+                ->where('id', '!=', $request->user_id)
+                ->pluck('fcm_token')
+                ->toArray();
+
+            $title = 'New Post';
+            $body = 'A new post has been created.';
+            (new FirebaseNotificationService)->sendMulticastNotification($tokens, $title, $body);
+
+
             return successResponse(
                 data: ['post' => $post],
-                message: 'Post created successfully',
+                message: 'Post created successfully and Notification sent',
                 statusCode: Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
