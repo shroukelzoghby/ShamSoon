@@ -8,6 +8,7 @@ use App\Http\Controllers\API\v1\CarbonController;
 use App\Http\Controllers\API\v1\Community\CommentController;
 use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\V1\FeedbackController;
+use App\Http\Controllers\API\v1\NotificationController;
 use App\Http\Controllers\API\v1\SolarPanelController;
 use App\Http\Controllers\API\v1\UserController;
 use Illuminate\Http\Request;
@@ -58,6 +59,8 @@ Route::prefix('users')
             Route::get('/carbons/{id}', [CarbonController::class, 'show'])->name('carbon.show');
 
             Route::post('/store-fcm-token', [UserController::class, 'storeFcmToken']);
+            Route::post('/notify-ai-result', [NotificationController::class, 'notifyAIResult']);
+
 
 
         });
