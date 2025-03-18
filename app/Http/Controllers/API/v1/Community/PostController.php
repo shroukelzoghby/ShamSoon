@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1\Community;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\v1\PostRequest;
+use App\Http\Resources\API\v1\PostResource;
 use App\Models\Post;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
@@ -19,7 +20,9 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::with('user', 'comments.user')->latest()->get();
+            $posts = Post::with('user', 'comments.user')
+                ->latest()
+                ->paginate(10);
             return successResponse(
                 data: ['posts' => $posts],
                 message: 'Posts retrieved successfully',
@@ -41,9 +44,8 @@ class PostController extends Controller
         try {
             $post = Auth::user()->posts()->create($request->validated());
 
-
             $tokens = User::whereNotNull('fcm_token')
-                ->where('id', '!=', $request->user_id)
+                ->where('id', '!=',  Auth::id())
                 ->pluck('fcm_token')
                 ->toArray();
 
@@ -68,11 +70,15 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Post $id)
+    public function show(Post $post)
     {
         try {
+            $post->load(['user', 'comments' => function ($query) {
+                $query->with('user')->latest()->take(10);
+            }]);
+
             return successResponse(
-                data: ['post' => $id->load('user', 'comments.user')],
+                data: ['post' => new PostResource($post)],
                 message: 'Post retrieved successfully',
                 statusCode: Response::HTTP_OK
             );
@@ -89,7 +95,7 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, Post $post)
     {
-        try {
+
             $this->authorize('update', $post);
             $post->update($request->validated());
             return successResponse(
@@ -97,12 +103,7 @@ class PostController extends Controller
                 message: 'Post updated successfully',
                 statusCode: Response::HTTP_OK
             );
-        } catch (\Exception $e) {
-            return errorResponse(
-                message: 'An error occurred while updating the post.',
-                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+
     }
 
     /**
@@ -110,19 +111,13 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        try {
-            $this->authorize('delete', $post); // Ensure the user owns the post
+            $this->authorize('delete', $post);
             $post->delete();
             return successResponse(
                 message: 'Post deleted successfully',
                 statusCode: Response::HTTP_OK
             );
-        } catch (\Exception $e) {
-            return errorResponse(
-                message: 'An error occurred while deleting the post.',
-                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+
     }
 
 }

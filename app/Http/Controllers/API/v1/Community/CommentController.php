@@ -39,13 +39,12 @@ class CommentController extends Controller
     public function store(CommentRequest $request,Post $post)
     {
         try {
-            $validatedData = $request->validated();
-            $validatedData['user_id'] = Auth::id();
-            $comment = $post->comments()->create($validatedData);
+            $comment = $post->comments()->create([
+                'content' => $request->content,
+                'user_id' => Auth::id(),
+            ]);
 
-            $post = Post::find($request->post_id);
-            $postOwner = User::find($post->user_id);
-
+            $postOwner = $post->user;
             if ($postOwner->fcm_token) {
                 $title = 'New Comment';
                 $body = 'Someone commented on your post.';
@@ -59,7 +58,8 @@ class CommentController extends Controller
         } catch (\Exception $e) {
             return errorResponse(
                 message: 'An error occurred while creating the post.',
-                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+                errors:$e->getMessage(),
             );
         }
     }
