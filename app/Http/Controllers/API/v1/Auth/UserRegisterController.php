@@ -36,7 +36,7 @@ class UserRegisterController extends Controller
 
             return successResponse(
                 data:[
-                    new UserResource($user) ,
+                    'user' => new UserResource($user) ,
                     'token' => $token,
                     ],
                 message: 'User created successfully',
@@ -47,7 +47,8 @@ class UserRegisterController extends Controller
             logError('User registration failed', $e);
             return errorResponse(
                 message: 'Registration failed',
-                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+                errors:$e->getMessage(),
             );
         }
 
