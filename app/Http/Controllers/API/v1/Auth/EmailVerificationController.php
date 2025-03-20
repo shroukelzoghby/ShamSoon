@@ -17,14 +17,14 @@ class EmailVerificationController extends Controller
     {
         try {
             $user = $request->user();
-            if ($user->email_verified_at) {
+            $emailToVerify = $user->new_email ?? $user->email;
+            if ($user->email_verified_at && !$user->new_email) {
                 return errorResponse(
                     message: 'Email is already verified.',
                     statusCode: Response::HTTP_BAD_REQUEST
                 );
             }
-
-            $user->notify(new EmailVerificationNotification());
+            $user->notify(new EmailVerificationNotification($emailToVerify));
             return successResponse(
                 message: 'Verification email sent successfully.',
                 statusCode: Response::HTTP_OK
@@ -45,12 +45,36 @@ class EmailVerificationController extends Controller
                     statusCode: Response::HTTP_UNAUTHORIZED
                 );
             }
-            $user = User::where('email', $request->email)->first();
-            $user->update(['email_verified_at' => now()]);
+            $user = User::where('new_email', $request->email)->first();
+            if ($user) {
+                //The user is updating their email
+                $user->email = $user->new_email;
+                $user->new_email = null;
+            } else {
+                // The user is verifying their email for the first time
+                $user = User::where('email', $request->email)->first();
+            }
+            if (!$user) {
+                //Before verifying, they change their email again by requesting another OTP
+                return errorResponse(
+                    message: 'This email is not associated with a pending verification request. Please request a new OTP for your current email.',
+                    statusCode: Response::HTTP_BAD_REQUEST
+                );
+
+            }
+            $user->email_verified_at = now();
+            $user->save();
+            $message = $user->wasChanged('email')
+                ? 'Email updated and verified successfully.'
+                : 'Email verified successfully.';
+
             return successResponse(
-                message: 'Email verified successfully.',
+                data: $user,
+                message: $message,
                 statusCode: Response::HTTP_OK
             );
+
+
         } catch (\Exception $e) {
             Log::error('OTP verification failed for email: ' . $request->email . ' - ' . $e->getMessage());
 

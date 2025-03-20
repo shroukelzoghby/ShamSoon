@@ -1,20 +1,22 @@
 <?php
 
-use App\Http\Controllers\API\v1\Auth\CheckOTPController;
-use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
-use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
-use App\Http\Controllers\Api\v1\Auth\SocialiteController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\CarbonController;
-use App\Http\Controllers\API\v1\Community\CommentController;
-use App\Http\Controllers\API\v1\Community\PostController;
+use App\Http\Controllers\Api\v1\ProfileController;
 use App\Http\Controllers\API\V1\FeedbackController;
 use App\Http\Controllers\API\v1\NotificationController;
 use App\Http\Controllers\API\v1\SolarPanelController;
+use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
+use App\Http\Controllers\Api\v1\Auth\SocialiteController;
+use App\Http\Controllers\API\v1\Community\PostController;
 use App\Http\Controllers\API\v1\Auth\UserRegisterController;
+use App\Http\Controllers\API\v1\Community\CommentController;
+use App\Http\Controllers\API\v1\Auth\ResetPasswordController;
+use App\Http\Controllers\API\v1\Auth\ForgetPasswordController;
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 
 Route::prefix('users')
@@ -60,6 +62,11 @@ Route::prefix('users')
 
             Route::post('/store-fcm-token', [UserController::class, 'storeFcmToken']);
             Route::post('/notify-ai-result', [NotificationController::class, 'notifyAIResult']);
+              
+            //Profile
+            Route::patch('/profile',[ProfileController::class,'update'])->name('profile.update');
+            Route::delete('/profile',[ProfileController::class,'destroy'])->name('profile.destroy');
+
 
 
 
