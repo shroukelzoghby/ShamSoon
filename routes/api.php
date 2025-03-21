@@ -8,8 +8,6 @@ use App\Http\Controllers\API\v1\NotificationController;
 use App\Http\Controllers\API\v1\SolarPanelController;
 use App\Http\Controllers\API\v1\Auth\CheckOTPController;
 use App\Http\Controllers\API\v1\UserController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\Auth\UserAuthController;
 use App\Http\Controllers\Api\v1\Auth\SocialiteController;
 use App\Http\Controllers\API\v1\Community\PostController;

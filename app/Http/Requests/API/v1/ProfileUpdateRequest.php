@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\v1;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProfileUpdateRequest extends FormRequest
@@ -22,9 +23,23 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'sometimes|min:3|unique:users,username',
-            'email' => 'sometimes|email|max:255|unique:users,email',
-            'phone' => 'sometimes|string|max:15|unique:users,phone',
+            'username' => [
+                'sometimes',
+                'min:3',
+                Rule::unique('users', 'username')->ignore($this->user()->id),
+            ],
+            'email' => [
+                'sometimes',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($this->user()->id),
+            ],
+            'phone' => [
+                'sometimes',
+                'string',
+                'max:15',
+                Rule::unique('users', 'phone')->ignore($this->user()->id),
+            ],
         ];
     }
 }
