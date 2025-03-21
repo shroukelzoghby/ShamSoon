@@ -12,51 +12,68 @@ class ProfileController extends Controller
 {
     public function update(ProfileUpdateRequest $request)
     {
-        //No changes
-        $user = $request->user();
-        $validated = $request->validated();
-        $user->fill($validated);
-        if (!$user->isDirty()) {
-            return successResponse(
+        try {
+            //No changes
+            $user = $request->user();
+            $validated = $request->validated();
+            $user->fill($validated);
+            if (!$user->isDirty()) {
+                return successResponse(
 
-                message: 'No changes',
-                statusCode: Response::HTTP_OK
-            );
-        }
-        //save with a change in email
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-            $user->new_email = $validated['email'];  // temporary field for changing emails 
+                    message: 'No changes',
+                    statusCode: Response::HTTP_OK
+                );
+            }
+            //save with a change in email
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+                $user->new_email = $validated['email'];  // temporary field for changing emails 
+                $user->save();
+                app(EmailverificationController::class)->sendEmailVerification($request);
+                return successResponse(
+                    message: 'A verification email has been sent. Please verify to complete the update.',
+                    statusCode: Response::HTTP_OK
+                );
+            }
+            //save with no change in email
             $user->save();
-            app(EmailverificationController::class)->sendEmailVerification($request);
+
             return successResponse(
-                message: 'A verification email has been sent. Please verify to complete the update.',
+                data: $user,
+                message: 'profile updated successfully',
                 statusCode: Response::HTTP_OK
             );
+        } catch (\Exception $e) {
+            logError('updating profile Failed', $e);
+
+            return errorResponse(
+                message: 'Something went wrong while updating profile. Please try again later.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+
         }
-        //save with no change in email
-        $user->save();
-
-        return successResponse(
-            data: $user,
-            message: 'profile updated successfully',
-            statusCode: Response::HTTP_OK
-        );
-
     }
 
     public function destroy(ProfileDestroyRequest $request)
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
 
-        $user->tokens()->delete();
+            $user->tokens()->delete();
 
-        $user->forceDelete();
+            $user->forceDelete();
 
-        return successResponse(
-            message: 'Your account has been permanently deleted.',
-            statusCode: Response::HTTP_OK
-        );
+            return successResponse(
+                message: 'Your account has been permanently deleted.',
+                statusCode: Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            logError('Deleting account failed', $e);
+            return errorResponse(
+                message: 'An error occurred while deleting account.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
 }
