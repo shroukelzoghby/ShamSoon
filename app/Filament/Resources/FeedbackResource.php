@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FeedbackResource\Pages;
-use App\Filament\Resources\FeedbackResource\RelationManagers;
-use App\Models\Feedback;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Feedback;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\FeedbackResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\FeedbackResource\RelationManagers;
 
 class FeedbackResource extends Resource
 {
@@ -27,9 +30,9 @@ class FeedbackResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -84,6 +87,20 @@ class FeedbackResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Feedback info')
+                    ->schema([
+                        TextEntry::make('user_id'),
+                        TextEntry::make('name'),
+                        TextEntry::make('phone'),
+                        TextEntry::make('message'),
+                    ])->columns(2)
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -96,7 +113,6 @@ class FeedbackResource extends Resource
         return [
             'index' => Pages\ListFeedback::route('/'),
             'create' => Pages\CreateFeedback::route('/create'),
-            'view' => Pages\ViewFeedback::route('/{record}'),
             'edit' => Pages\EditFeedback::route('/{record}/edit'),
         ];
     }
