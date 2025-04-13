@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\RoleResource\Pages;
-use App\Filament\Resources\RoleResource\RelationManagers;
-use App\Models\Role;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\Role;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\RoleResource\RelationManagers;
 
 class RoleResource extends Resource
 {
@@ -33,9 +36,12 @@ class RoleResource extends Resource
                 Forms\Components\TextInput::make('description')
                     ->maxLength(255)
                     ->default(null),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\select::make('status')
+                    ->options([
+                        'active',
+                        'inactive'
+                    ])
                     ->required()
-                    ->maxLength(255)
                     ->default('active'),
             ]);
     }
@@ -73,6 +79,19 @@ class RoleResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Roles info')
+
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('description'),
+                        TextEntry::make('status'),
+                    ])->columns(3)
+            ]);
+    }
     public static function getRelations(): array
     {
         return [
@@ -85,7 +104,6 @@ class RoleResource extends Resource
         return [
             'index' => Pages\ListRoles::route('/'),
             'create' => Pages\CreateRole::route('/create'),
-            'view' => Pages\ViewRole::route('/{record}'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
