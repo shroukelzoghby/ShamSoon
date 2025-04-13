@@ -7,9 +7,13 @@ use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
@@ -119,6 +123,33 @@ class UserResource extends Resource
                 ]),
             ]);
     }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Feedback info')
+                    ->schema([
+                        TextEntry::make('username'),
+                        TextEntry::make('email'),
+                        TextEntry::make('name'),
+                        TextEntry::make('phone'),
+                        TextEntry::make('Solar panels count')
+                            ->state(function (Model $record): float {
+                                return $record->solarpanels->count();
+                            }),
+                        TextEntry::make('social_id'),
+                        TextEntry::make('profile_image'),
+                        TextEntry::make('phone_verified_at'),
+                        TextEntry::make('email_verified_at'),
+
+
+                        TextEntry::make('created_at'),
+                        TextEntry::make('updated_at'),
+
+                    ])->columns(3)
+            ]);
+    }
+
 
     public static function getRelations(): array
     {
@@ -132,7 +163,6 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
