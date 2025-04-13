@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\SolarPanel;
+use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SolarPanelResource\Pages;
 use App\Filament\Resources\SolarPanelResource\RelationManagers;
-use App\Models\SolarPanel;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SolarPanelResource extends Resource
 {
@@ -23,9 +26,9 @@ class SolarPanelResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->required(),
                 Forms\Components\TextInput::make('performance')
                     ->required()
                     ->numeric(),
@@ -77,6 +80,22 @@ class SolarPanelResource extends Resource
             ]);
     }
 
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Solar Panel info')
+
+                    ->schema([
+                        TextEntry::make('user_id'),
+                        TextEntry::make('performance'),
+                        TextEntry::make('energy_produced'),
+                        TextEntry::make('energy_consumed'),
+                    ])->columns(2)
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -89,7 +108,6 @@ class SolarPanelResource extends Resource
         return [
             'index' => Pages\ListSolarPanels::route('/'),
             'create' => Pages\CreateSolarPanel::route('/create'),
-            'view' => Pages\ViewSolarPanel::route('/{record}'),
             'edit' => Pages\EditSolarPanel::route('/{record}/edit'),
         ];
     }
