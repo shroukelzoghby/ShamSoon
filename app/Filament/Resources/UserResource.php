@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\UserResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\FeedbacksRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\PostsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\SolarpanelsRelationManager;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -154,7 +158,10 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PostsRelationManager::class,
+            CommentsRelationManager::class,
+            FeedbacksRelationManager::class,
+            SolarpanelsRelationManager::class
         ];
     }
 
