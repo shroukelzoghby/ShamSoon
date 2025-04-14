@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -9,6 +10,10 @@ use App\Models\SolarPanel;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -67,8 +72,110 @@ class SolarPanelResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
-            ])
+                Filter::make('performance')
+                ->form([
+                    TextInput::make('min')->label('Min Performance'),
+                    TextInput::make('max')->label('Max Performance'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when($data['min'], fn ($query, $min) => $query->where('performance', '>=', $min))
+                        ->when($data['max'], fn ($query, $max) => $query->where('performance', '<=', $max));
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                    if (!empty($data['min'])) {
+                        $indicators[] = 'Performance ≥ ' . $data['min'];
+                    }
+
+                    if (!empty($data['max'])) {
+                        $indicators[] = 'Performance ≤ ' . $data['max'];
+                    }
+
+                    return $indicators;
+                }),
+
+                Filter::make('energy_produced')
+                ->form([
+                    TextInput::make('min')->label('Min Energy Produced'),
+                    TextInput::make('max')->label('Max Energy Produced'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when($data['min'], fn ($query, $min) => $query->where('energy_produced', '>=', $min))
+                        ->when($data['max'], fn ($query, $max) => $query->where('energy_produced', '<=', $max));
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                    if (!empty($data['min'])) {
+                        $indicators[] = 'Energy Produced ≥ ' . $data['min'];
+                    }
+
+                    if (!empty($data['max'])) {
+                        $indicators[] = 'Energy Produced ≤ ' . $data['max'];
+                    }
+
+                    return $indicators;
+                }),
+
+                Filter::make('energy_consumed')
+                ->form([
+                    TextInput::make('min')->label('Min Energy Consumed'),
+                    TextInput::make('max')->label('Max Energy Consumed'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when($data['min'], fn ($query, $min) => $query->where('energy_consumed', '>=', $min))
+                        ->when($data['max'], fn ($query, $max) => $query->where('energy_consumed', '<=', $max));
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                    if (!empty($data['min'])) {
+                        $indicators[] = 'Energy Consumed ≥ ' . $data['min'];
+                    }
+
+                    if (!empty($data['max'])) {
+                        $indicators[] = 'Energy Consumed ≤ ' . $data['max'];
+                    }
+
+                    return $indicators;
+                }),
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['created_from'] ?? null) {
+                            $indicators['created_from'] = Indicator::make('Created from ' . Carbon::parse($data['created_from'])->toFormattedDateString());
+
+                        }
+
+                        if ($data['until'] ?? null) {
+                            $indicators['created_until'] = Indicator::make('Created until ' . Carbon::parse($data['created_until'])->toFormattedDateString());
+
+                        }
+
+                        return $indicators;
+                    })->columns(2)->columnSpanFull()
+            ])->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
