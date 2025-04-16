@@ -2,10 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\RelationManagers\CommentsRelationManager;
-use App\Filament\Resources\UserResource\RelationManagers\FeedbacksRelationManager;
-use App\Filament\Resources\UserResource\RelationManagers\PostsRelationManager;
-use App\Filament\Resources\UserResource\RelationManagers\SolarpanelsRelationManager;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -17,10 +13,15 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
+use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\RelationManagers\PostsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\FeedbacksRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\SolarpanelsRelationManager;
 
 class UserResource extends Resource
 {
@@ -31,6 +32,35 @@ class UserResource extends Resource
     protected static ?string $navigationGroup = 'System Management';
 
     protected static ?int $navigationSort = 1;
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['username', 'name','email','phone'];
+    }
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'email' => $record->email,
+            'phone'=>$record->phone,
+            'status'=>$record->status,
+            'role'=>$record->role->name,
+            'solarpanels_count'=>$record->solarpanels->count()
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 10 ? 'warning' : 'success';
+    }
+
 
     public static function form(Form $form): Form
     {
