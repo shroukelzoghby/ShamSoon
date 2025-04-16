@@ -12,10 +12,12 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
+use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SolarPanelResource\Pages;
@@ -26,7 +28,32 @@ class SolarPanelResource extends Resource
     protected static ?string $model = SolarPanel::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $recordTitleAttribute = 'user.name';
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->user->name;
+    }
 
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Performance' => $record->performance . '%',
+            'Produced' => $record->energy_produced . ' kWh',
+            'Consumed' => $record->energy_consumed . ' kWh',
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 10 ? 'warning' : 'success';
+    }
+
+    
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -50,12 +77,13 @@ class SolarPanelResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('performance')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('energy_produced')
                     ->numeric()
                     ->sortable(),
