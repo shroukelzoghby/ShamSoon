@@ -16,13 +16,15 @@ class EmailVerificationNotification extends Notification
     public $fromEmail;
     public $mailer;
     private $otp;
+    public $email;
 
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(string $email)
     {
+        $this->email=$email;
         $this->subject='Verification Needed';
         $this->message='Use The Below Code For Verification Process';
         $this->mailer='smtp';
@@ -44,7 +46,7 @@ class EmailVerificationNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $otp=$this->otp->generate($notifiable->email,'numeric',5,60);
+        $otp=$this->otp->generate($this->email,'numeric',5,60);
         return (new MailMessage)
                     ->mailer($this->mailer)
                     ->subject($this->subject)

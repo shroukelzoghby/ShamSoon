@@ -4,7 +4,7 @@ namespace App\Http\Requests\API\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRegisterRequest extends FormRequest
+class StoreFCMTokenRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,7 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|min:3|unique:users,username',
-            'name' => 'required|string|min:3',
-            'email' => 'required|email|max:255|unique:users,email',
-            'phone' => 'required|string|max:15|unique:users,phone',
-            'password'=>'required|string|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/|confirmed',
+            'fcm_token' => 'required|string',
         ];
     }
 }

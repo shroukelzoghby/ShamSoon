@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'social_id')) {
-                $table->string('social_id')->nullable();
-            }
+            $table->string('fcm_token')->nullable()->after('password');
         });
     }
 
@@ -24,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('social_id');
+            //
         });
     }
 };
