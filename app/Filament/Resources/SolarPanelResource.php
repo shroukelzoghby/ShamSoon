@@ -26,8 +26,8 @@ use App\Filament\Resources\SolarPanelResource\RelationManagers;
 class SolarPanelResource extends Resource
 {
     protected static ?string $model = SolarPanel::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Solar panel Management';
+    protected static ?string $navigationIcon = 'heroicon-o-sun';
     protected static ?string $recordTitleAttribute = 'user.name';
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
     {
@@ -52,8 +52,8 @@ class SolarPanelResource extends Resource
         return static::getModel()::count() > 10 ? 'warning' : 'success';
     }
 
-    
-    
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -101,76 +101,76 @@ class SolarPanelResource extends Resource
             ])
             ->filters([
                 Filter::make('performance')
-                ->form([
-                    TextInput::make('min')->label('Min Performance'),
-                    TextInput::make('max')->label('Max Performance'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when($data['min'], fn ($query, $min) => $query->where('performance', '>=', $min))
-                        ->when($data['max'], fn ($query, $max) => $query->where('performance', '<=', $max));
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        TextInput::make('min')->label('Min Performance'),
+                        TextInput::make('max')->label('Max Performance'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['min'], fn($query, $min) => $query->where('performance', '>=', $min))
+                            ->when($data['max'], fn($query, $max) => $query->where('performance', '<=', $max));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if (!empty($data['min'])) {
-                        $indicators[] = 'Performance ≥ ' . $data['min'];
-                    }
+                        if (!empty($data['min'])) {
+                            $indicators[] = 'Performance ≥ ' . $data['min'];
+                        }
 
-                    if (!empty($data['max'])) {
-                        $indicators[] = 'Performance ≤ ' . $data['max'];
-                    }
+                        if (!empty($data['max'])) {
+                            $indicators[] = 'Performance ≤ ' . $data['max'];
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
 
                 Filter::make('energy_produced')
-                ->form([
-                    TextInput::make('min')->label('Min Energy Produced'),
-                    TextInput::make('max')->label('Max Energy Produced'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when($data['min'], fn ($query, $min) => $query->where('energy_produced', '>=', $min))
-                        ->when($data['max'], fn ($query, $max) => $query->where('energy_produced', '<=', $max));
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        TextInput::make('min')->label('Min Energy Produced'),
+                        TextInput::make('max')->label('Max Energy Produced'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['min'], fn($query, $min) => $query->where('energy_produced', '>=', $min))
+                            ->when($data['max'], fn($query, $max) => $query->where('energy_produced', '<=', $max));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if (!empty($data['min'])) {
-                        $indicators[] = 'Energy Produced ≥ ' . $data['min'];
-                    }
+                        if (!empty($data['min'])) {
+                            $indicators[] = 'Energy Produced ≥ ' . $data['min'];
+                        }
 
-                    if (!empty($data['max'])) {
-                        $indicators[] = 'Energy Produced ≤ ' . $data['max'];
-                    }
+                        if (!empty($data['max'])) {
+                            $indicators[] = 'Energy Produced ≤ ' . $data['max'];
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
 
                 Filter::make('energy_consumed')
-                ->form([
-                    TextInput::make('min')->label('Min Energy Consumed'),
-                    TextInput::make('max')->label('Max Energy Consumed'),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when($data['min'], fn ($query, $min) => $query->where('energy_consumed', '>=', $min))
-                        ->when($data['max'], fn ($query, $max) => $query->where('energy_consumed', '<=', $max));
-                })
-                ->indicateUsing(function (array $data): array {
-                    $indicators = [];
+                    ->form([
+                        TextInput::make('min')->label('Min Energy Consumed'),
+                        TextInput::make('max')->label('Max Energy Consumed'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['min'], fn($query, $min) => $query->where('energy_consumed', '>=', $min))
+                            ->when($data['max'], fn($query, $max) => $query->where('energy_consumed', '<=', $max));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
 
-                    if (!empty($data['min'])) {
-                        $indicators[] = 'Energy Consumed ≥ ' . $data['min'];
-                    }
+                        if (!empty($data['min'])) {
+                            $indicators[] = 'Energy Consumed ≥ ' . $data['min'];
+                        }
 
-                    if (!empty($data['max'])) {
-                        $indicators[] = 'Energy Consumed ≤ ' . $data['max'];
-                    }
+                        if (!empty($data['max'])) {
+                            $indicators[] = 'Energy Consumed ≤ ' . $data['max'];
+                        }
 
-                    return $indicators;
-                }),
+                        return $indicators;
+                    }),
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_from'),

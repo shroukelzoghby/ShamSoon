@@ -22,9 +22,10 @@ class FeedbackResource extends Resource
 {
     protected static ?string $model = Feedback::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static ?string $navigationIcon = 'heroicon-o-megaphone';
+    protected static ?string $navigationGroup = 'Community Management';
     protected static ?string $navigationLabel = 'Feedbacks';
+    protected static ?int $navigationSort = 3;
 
 
     public static function getGloballySearchableAttributes(): array
@@ -72,8 +73,6 @@ class FeedbackResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('message')
                     ->required()
-                    ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('read_at'),
             ]);
     }
 

@@ -24,7 +24,7 @@ class RoleResource extends Resource
     protected static ?string $model = Role::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-information-circle';
-    protected static ?string $navigationGroup = 'System Management';
+    protected static ?string $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 2;
     protected static bool $softDelete = true;
     protected static ?string $recordTitleAttribute = 'name';
@@ -61,7 +61,8 @@ class RoleResource extends Resource
                         'inactive'
                     ])
                     ->required()
-                    ->default('active'),
+                    ->default('active')
+                    ->columnSpanFull()
             ]);
     }
 

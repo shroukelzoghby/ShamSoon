@@ -29,7 +29,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'System Management';
+    protected static ?string $navigationGroup = 'User Management';
 
     protected static ?int $navigationSort = 1;
     public static function getGloballySearchableAttributes(): array
@@ -82,8 +82,6 @@ class UserResource extends Resource
                     ->default(null),
                 Forms\Components\FileUpload::make('profile_image')
                     ->image(),
-                Forms\Components\DateTimePicker::make('phone_verified_at'),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
@@ -92,9 +90,6 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->default('active'),
-                Forms\Components\TextInput::make('social_id')
-                    ->maxLength(255)
-                    ->default(null),
                 Forms\Components\Select::make('role_id')
                     ->relationship('role', 'name')
                     ->default(null)

@@ -23,8 +23,8 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'System Community';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationGroup = 'Community Management';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'title';
 
