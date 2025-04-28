@@ -2,24 +2,58 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FeedbackResource\Pages;
-use App\Filament\Resources\FeedbackResource\RelationManagers;
-use App\Models\Feedback;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Feedback;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Illuminate\Contracts\Support\Htmlable;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\FeedbackResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\FeedbackResource\RelationManagers;
 
 class FeedbackResource extends Resource
 {
     protected static ?string $model = Feedback::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static ?string $navigationIcon = 'heroicon-o-megaphone';
+    protected static ?string $navigationGroup = 'Community Management';
     protected static ?string $navigationLabel = 'Feedbacks';
+    protected static ?int $navigationSort = 3;
+
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'phone'];
+    }
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'message' => $record->message,
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 10 ? 'warning' : 'success';
+    }
+
+
 
     protected static ?string $modelLabel = 'Feedbacks';
 
@@ -27,9 +61,9 @@ class FeedbackResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -39,8 +73,6 @@ class FeedbackResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('message')
                     ->required()
-                    ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('read_at'),
             ]);
     }
 
@@ -48,24 +80,35 @@ class FeedbackResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User')
+                    ->sortable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                ->label('Entered Name')
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('—'),
+                Tables\Columns\TextColumn::make('message')
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('read_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
             ])
             ->filters([
                 //
@@ -81,6 +124,20 @@ class FeedbackResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Feedback info')
+                    ->schema([
+                        TextEntry::make('user_id'),
+                        TextEntry::make('name'),
+                        TextEntry::make('phone'),
+                        TextEntry::make('message'),
+                    ])->columns(2)
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -93,7 +150,6 @@ class FeedbackResource extends Resource
         return [
             'index' => Pages\ListFeedback::route('/'),
             'create' => Pages\CreateFeedback::route('/create'),
-            'view' => Pages\ViewFeedback::route('/{record}'),
             'edit' => Pages\EditFeedback::route('/{record}/edit'),
         ];
     }

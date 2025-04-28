@@ -2,26 +2,65 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Illuminate\Contracts\Support\Htmlable;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\RelationManagers\PostsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\FeedbacksRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\SolarpanelsRelationManager;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'System Management';
+    protected static ?string $navigationGroup = 'User Management';
 
     protected static ?int $navigationSort = 1;
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['username', 'name','email','phone'];
+    }
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'email' => $record->email,
+            'phone'=>$record->phone,
+            'status'=>$record->status,
+            'role'=>$record->role->name,
+            'solarpanels_count'=>$record->solarpanels->count()
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 10 ? 'warning' : 'success';
+    }
+
 
     public static function form(Form $form): Form
     {
@@ -43,8 +82,6 @@ class UserResource extends Resource
                     ->default(null),
                 Forms\Components\FileUpload::make('profile_image')
                     ->image(),
-                Forms\Components\DateTimePicker::make('phone_verified_at'),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
@@ -53,12 +90,10 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->default('active'),
-                Forms\Components\TextInput::make('social_id')
-                    ->maxLength(255)
-                    ->default(null),
                 Forms\Components\Select::make('role_id')
                     ->relationship('role', 'name')
-                    ->default(null),
+                    ->default(null)
+
             ]);
     }
 
@@ -67,35 +102,55 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('username')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('profile_image'),
+                    ->searchable()
+                    ->placeholder('—'),
+                Tables\Columns\TextColumn::make('solarpanels_count')
+                    ->label('Solar Panels Count')
+                    ->counts('solarpanels')
+                    ->searchable()
+                    ->placeholder('—'),
+                Tables\Columns\ImageColumn::make('profile_image')
+                ->placeholder('—'),
                 Tables\Columns\TextColumn::make('phone_verified_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('social_id')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('role.name')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('—')
             ])
             ->filters([
                 //
@@ -110,11 +165,41 @@ class UserResource extends Resource
                 ]),
             ]);
     }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Feedback info')
+                    ->schema([
+                        TextEntry::make('username'),
+                        TextEntry::make('email'),
+                        TextEntry::make('name'),
+                        TextEntry::make('phone'),
+                        TextEntry::make('Solar panels count')
+                            ->state(function (Model $record): float {
+                                return $record->solarpanels->count();
+                            }),
+                        TextEntry::make('social_id'),
+                        TextEntry::make('profile_image'),
+                        TextEntry::make('phone_verified_at'),
+                        TextEntry::make('email_verified_at'),
+
+
+                        TextEntry::make('created_at'),
+                        TextEntry::make('updated_at'),
+
+                    ])->columns(3)
+            ]);
+    }
+
 
     public static function getRelations(): array
     {
         return [
-            //
+            PostsRelationManager::class,
+            CommentsRelationManager::class,
+            FeedbacksRelationManager::class,
+            SolarpanelsRelationManager::class
         ];
     }
 
@@ -123,7 +208,6 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

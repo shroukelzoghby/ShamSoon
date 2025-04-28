@@ -13,7 +13,7 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->role->name === 'admin';
     }
 
     /**
@@ -38,7 +38,7 @@ class PostPolicy
     public function update(User $user, Post $post): bool
     {
         // Only the post owner can update the post
-        return $user->id === $post->user_id;
+        return $user->id === $post->user_id || $user->role->name === 'admin';
     }
 
     /**
@@ -47,7 +47,7 @@ class PostPolicy
     public function delete(User $user, Post $post): bool
     {
         // Only the post owner can delete the post
-        return $user->id === $post->user_id;
+        return $user->id === $post->user_id ||  $user->role->name === 'admin';
     }
 
     /**
