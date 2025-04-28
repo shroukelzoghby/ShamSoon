@@ -13,7 +13,7 @@ class CommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->role->name === 'admin';
     }
 
     /**
@@ -38,7 +38,7 @@ class CommentPolicy
     public function update(User $user, Comment $comment): bool
     {
         // Only the post owner can update the post
-        return $user->id === $comment->user_id;
+        return $user->id === $comment->user_id || $user->role->name === 'admin';
     }
 
     /**
@@ -47,7 +47,7 @@ class CommentPolicy
     public function delete(User $user, Comment $comment): bool
     {
         // Only the post owner can delete the post
-        return $user->id === $comment->user_id;
+        return $user->id === $comment->user_id || $user->role->name === 'admin';
     }
 
     /**
