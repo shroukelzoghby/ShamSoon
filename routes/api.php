@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\v1\community\PostLikeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\CarbonController;
 use App\Http\Controllers\Api\v1\ProfileController;
@@ -44,6 +45,10 @@ Route::prefix('users')
             // Post Routes
             Route::apiResource('posts', PostController::class);
 
+            //posts-likes Routes
+            Route::post('posts/{post}/like',[PostLikeController::class,'like'])->name('posts.like');
+            Route::post('posts/{post}/unlike',[PostLikeController::class,'unlike'])->name('posts.unlike');
+            
             // Comment Routes
             Route::apiResource('posts.comments', CommentController::class)->except(['show']);
 
