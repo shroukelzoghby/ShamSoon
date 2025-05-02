@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\API\v1\Community;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\API\v1\PostRequest;
-use App\Http\Resources\API\v1\PostResource;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\API\v1\PostRequest;
+use App\Http\Resources\API\v1\PostResource;
+use App\Services\FirebaseNotificationService;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PostController extends Controller
 {
@@ -45,7 +46,7 @@ class PostController extends Controller
             $post = Auth::user()->posts()->create($request->validated());
 
             $tokens = User::whereNotNull('fcm_token')
-                ->where('id', '!=',  Auth::id())
+                ->where('id', '!=', Auth::id())
                 ->pluck('fcm_token')
                 ->toArray();
 
@@ -70,17 +71,26 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(string $id)
     {
         try {
-            $post->load(['user', 'comments' => function ($query) {
-                $query->with('user')->latest()->take(10);
-            }]);
-
+            $post = Post::findOrFail($id);
+            $post->load([
+                'user',
+                'comments' => function ($query) {
+                    $query->with('user')->latest()->take(10);
+                }
+            ]);
             return successResponse(
                 data: ['post' => new PostResource($post)],
                 message: 'Post retrieved successfully',
                 statusCode: Response::HTTP_OK
+            );
+
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(
+                message: 'Post not found with the given ID.',
+                statusCode: Response::HTTP_NOT_FOUND
             );
         } catch (\Exception $e) {
             return errorResponse(
@@ -93,9 +103,10 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, Post $post)
+    public function update(PostRequest $request, string $id)
     {
-
+        try {
+            $post = Post::findOrFail($id);
             $this->authorize('update', $post);
             $post->update($request->validated());
             return successResponse(
@@ -103,20 +114,44 @@ class PostController extends Controller
                 message: 'Post updated successfully',
                 statusCode: Response::HTTP_OK
             );
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(
+                message: 'Post not found with the given ID.',
+                statusCode: Response::HTTP_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while updating the post.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(string $id)
     {
+        try {
+            $post = Post::findOrFail($id);
             $this->authorize('delete', $post);
             $post->delete();
             return successResponse(
                 message: 'Post deleted successfully',
                 statusCode: Response::HTTP_OK
             );
+        } catch (ModelNotFoundException $e) {
+            return errorResponse(
+                message: 'Post not found with the given ID.',
+                statusCode: Response::HTTP_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            return errorResponse(
+                message: 'An error occurred while updating the post.',
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
     }
 
