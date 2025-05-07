@@ -23,7 +23,7 @@ class UserAuthController extends Controller
             if (!Auth::attempt($credentials)||!$user) {
                 return errorResponse(
                     message: 'Invalid login credentials',
-                    statusCode: Response::HTTP_UNAUTHORIZED
+                    statusCode: Response::HTTP_BAD_REQUEST
                 );
             }
             $token = $user->createToken('authToken')->plainTextToken;
