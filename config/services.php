@@ -39,6 +39,9 @@ return [
         'client_id'=>'9049375551-grg4lt3lqbqbg2fb4km59om7pmneem4l.apps.googleusercontent.com',
         'client_secret'=>'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',
         'redirect'=>'http://127.0.0.1:8000/api/v1/users/auth/google/callback'
-    ]
+    ],
+    'openweather' => [
+    'key' => env('OPENWEATHER_KEY'),
+],
 
 ];
