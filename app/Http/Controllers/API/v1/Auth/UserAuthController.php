@@ -20,21 +20,32 @@ class UserAuthController extends Controller
        try{
             $credentials = $request->only('email', 'password');
             $user = User::where('email', $request->email)->first();
-            if (!Auth::attempt($credentials)||!$user) {
-                return errorResponse(
-                    message: 'Invalid login credentials',
-                    statusCode: Response::HTTP_BAD_REQUEST
-                );
-            }
-            $token = $user->createToken('authToken')->plainTextToken;
-            return successResponse(
-                data: [
-                    'user' => new UserResource($user),
-                    'token' => $token,
-                ],
-                message: 'Login successful',
-                statusCode: Response::HTTP_OK
-            );
+
+           if (Auth::attempt($credentials)) {
+               $user = Auth::user();
+
+
+               $user->tokens()->delete();
+               Log::info('Revoked all previous tokens for user ID: ' . $user->id);
+
+
+               $token = $user->createToken('auth-token')->plainTextToken;
+
+               Log::info('User logged in: ' . $user->id . ', New token: ' . $token);
+
+               return successResponse(
+                   data: [
+                       'user' => new UserResource($user),
+                       'token' => $token,
+                   ],
+                   message: 'Login successful',
+                   statusCode: Response::HTTP_OK
+               );
+           }
+           return errorResponse(
+               message: 'Invalid login credentials',
+               statusCode: Response::HTTP_BAD_REQUEST
+           );
 
 
         }catch (Exception $e){
