@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\API\v1\StoreCarbonRequest;
 use App\Models\Carbon;
-use App\Models\Feedback;
 use App\Models\SolarPanel;
 use App\Services\CarbonCalculator;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\API\v1\StoreCarbonRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CarbonController extends Controller
 {
@@ -28,7 +26,6 @@ class CarbonController extends Controller
                     statusCode: Response::HTTP_NOT_FOUND
                 );
             }
-
             // Calculate CO2 saved and equivalent trees
             $co2Saved = CarbonCalculator::calculateCO2Saved($solarPanel->energy_produced, $validatedData['emission_factor']);
             $equivalentTrees = CarbonCalculator::calculateEquivalentTreesPlanted($co2Saved);
@@ -62,22 +59,20 @@ class CarbonController extends Controller
     public function show(string $id)
     {
         try {
-
-            $user = Auth::user();
-
-            $carbon = Carbon::whereHas('solarPanel', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->findOrFail($id);
-
-
+            $carbon = Carbon::findOrFail($id);
+        
+            if ($carbon->solarPanel->user_id !== Auth::id()) {
+                return errorResponse(
+                    message: 'You are not authorized to view this carbon data.',
+                    statusCode: Response::HTTP_FORBIDDEN
+                );
+            }
             return successResponse(
                 data: $carbon,
-                message: "Solar panel fetched successfully.",
+                message: "Carbon fetched successfully.",
                 statusCode: Response::HTTP_OK
             );
-
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
 
             return errorResponse(
                 message: 'Carbon not found.',
