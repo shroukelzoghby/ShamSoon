@@ -8,6 +8,8 @@ use App\Models\Comment;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
+use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,7 +27,7 @@ class CommentController extends Controller
                 message: 'Comments retrieved successfully',
                 statusCode: Response::HTTP_OK
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse(
                 message: 'An error occurred while fetching Comments.',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
@@ -55,7 +57,7 @@ class CommentController extends Controller
                 message: 'Comment created successfully and Notification sent',
                 statusCode: Response::HTTP_CREATED
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return errorResponse(
                 message: 'An error occurred while creating the post.',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -67,9 +69,15 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CommentRequest $request, Comment $comment)
+    public function update(CommentRequest $request,Post $post, Comment $comment)
     {
         try {
+            if ($comment->post_id !== $post->id) {
+                return errorResponse(
+                    message: 'Comment not found for this post',
+                    statusCode: Response::HTTP_NOT_FOUND
+                );
+            }
             $this->authorize('update', $comment);
             $comment->update($request->validated());
             return successResponse(
@@ -77,7 +85,15 @@ class CommentController extends Controller
                 message: 'comment updated successfully',
                 statusCode: Response::HTTP_OK
             );
-        } catch (\Exception $e) {
+        } 
+        catch(AuthorizationException $e)
+        {
+            return errorResponse(
+                message:'You are not authorized to update this comment.',
+                statusCode:Response::HTTP_FORBIDDEN
+            );
+        }
+        catch (Exception $e) {
             return errorResponse(
                 message: 'An error occurred while updating the comment.',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
@@ -88,16 +104,29 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Comment $comment,Post $post)
+    public function destroy(Post $post,Comment $comment)
     {
         try {
+            if ($comment->post_id !== $post->id) {
+                return errorResponse(
+                    message: 'Comment not found for this post',
+                    statusCode: Response::HTTP_NOT_FOUND
+                );
+            }
             $this->authorize('delete', $comment);
             $comment->delete();
             return successResponse(
                 message: 'comment deleted successfully',
                 statusCode: Response::HTTP_OK
             );
-        } catch (\Exception $e) {
+        }
+        catch(AuthorizationException $e)
+        {
+            return errorResponse(
+                message:'You are not authorized to delete this comment.',
+                statusCode:Response::HTTP_FORBIDDEN
+            );
+        } catch (Exception $e) {
             return errorResponse(
                 message: 'An error occurred while deleting the comment.',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR

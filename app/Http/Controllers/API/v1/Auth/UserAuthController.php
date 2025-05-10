@@ -44,7 +44,7 @@ class UserAuthController extends Controller
            }
            return errorResponse(
                message: 'Invalid login credentials',
-               statusCode: Response::HTTP_UNAUTHORIZED
+               statusCode: Response::HTTP_BAD_REQUEST
            );
 
 

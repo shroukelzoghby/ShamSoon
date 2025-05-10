@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Http\Controllers\Controller;
+use App\Models\SolarPanel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SolarPanelController extends Controller
@@ -44,18 +45,19 @@ class SolarPanelController extends Controller
     public function show(string $id)
     {
         try {
-
-            $user = Auth::user();
-
-            $solarPanel = $user->solarPanels()->with('carbon')->findOrFail($id);
-
-
+            $solarPanel = SolarPanel::with('carbon')->findOrFail($id);
+    
+            if ($solarPanel->user_id !== Auth::id()) {
+                return errorResponse(
+                    message: 'You are not authorized to view this solar panel.',
+                    statusCode: Response::HTTP_FORBIDDEN
+                );
+            }
             return successResponse(
                 data: $solarPanel,
                 message: "Solar panel fetched successfully.",
                 statusCode: Response::HTTP_OK
             );
-
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 

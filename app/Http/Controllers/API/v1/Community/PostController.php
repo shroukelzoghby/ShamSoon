@@ -11,6 +11,7 @@ use App\Http\Requests\API\v1\PostRequest;
 use App\Http\Resources\API\v1\PostResource;
 use App\Services\FirebaseNotificationService;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PostController extends Controller
@@ -21,7 +22,8 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::with('user', 'comments.user')
+            $posts = Post::with('user', 'comments.user','likes')
+            ->withCount('likes')
                 ->latest()
                 ->paginate(10);
             return successResponse(
@@ -53,7 +55,6 @@ class PostController extends Controller
             $title = 'New Post';
             $body = 'A new post has been created.';
             (new FirebaseNotificationService)->sendMulticastNotification($tokens, $title, $body);
-
 
             return successResponse(
                 data: ['post' => $post],
@@ -119,6 +120,13 @@ class PostController extends Controller
                 message: 'Post not found with the given ID.',
                 statusCode: Response::HTTP_NOT_FOUND
             );
+        }
+        catch(AuthorizationException $e)
+        {
+            return errorResponse(
+                message:'You are not authorized to update this post.',
+                statusCode:Response::HTTP_FORBIDDEN
+            );
         } catch (\Exception $e) {
             return errorResponse(
                 message: 'An error occurred while updating the post.',
@@ -146,9 +154,17 @@ class PostController extends Controller
                 message: 'Post not found with the given ID.',
                 statusCode: Response::HTTP_NOT_FOUND
             );
-        } catch (\Exception $e) {
+        } 
+        catch(AuthorizationException $e)
+        {
             return errorResponse(
-                message: 'An error occurred while updating the post.',
+                message:'You are not authorized to delete this post.',
+                statusCode:Response::HTTP_FORBIDDEN
+            );
+        }catch (\Exception $e) {
+            logError('An error occurred while Deleting the post.', $e);
+            return errorResponse(
+                message: 'An error occurred while Deleting the post.',
                 statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
