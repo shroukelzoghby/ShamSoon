@@ -21,6 +21,10 @@ class NotificationController extends Controller
                 ->latest()
                 ->paginate(10);
 
+            Notification::where('user_id', $request->user()->id)
+                ->where('read', false)
+                ->update(['read' => true]);
+
             return successResponse(
                 data: ['notifications' => $notifications],
                 message: 'Notifications retrieved successfully',
@@ -39,7 +43,7 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        if ($user->fcm_token) {
+        if ($user->is_notify && $user->fcm_token) {
             $title = 'AI Result';
             $body = $request->result;
 
@@ -52,7 +56,7 @@ class NotificationController extends Controller
                     $user->id
                 );
             } catch (\Exception $e) {
-                Log::error('Failed to send Notification ' . $e->getMessage());
+                Log::error('Failed to send Notification: ' . $e->getMessage());
                 return errorResponse(
                     message: 'An error occurred while sending notification',
                     statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -60,8 +64,54 @@ class NotificationController extends Controller
                 );
             }
         }
+
         return successResponse(
-            message: "AI result notification sent",
+            message: $user->is_notify ? 'AI result notification sent' : 'Notifications disabled',
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    public function deleteNotification(Request $request, $id)
+    {
+        $notification = Notification::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (!$notification) {
+            return errorResponse(
+                message: 'Notification not found or unauthorized',
+                statusCode: Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $notification->delete();
+
+        return successResponse(
+            message: 'Notification deleted successfully',
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    public function deleteAllNotifications(Request $request)
+    {
+        $deleted = Notification::where('user_id', $request->user()->id)->delete();
+
+        return successResponse(
+            data: ['deleted_count' => $deleted],
+            message: 'All notifications deleted successfully',
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    public function unreadNotificationCount(Request $request)
+    {
+        $count = Notification::where('user_id', $request->user()->id)
+            ->where('read', false)
+            ->count();
+
+        return successResponse(
+            data: ['unread_count' => $count],
+            message: 'Unread notification count retrieved successfully',
             statusCode: Response::HTTP_OK
         );
     }
