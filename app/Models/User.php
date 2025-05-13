@@ -30,7 +30,9 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'email_verified_at',
         'social_id',
-        'role_id'
+        'role_id',
+        'fcm_token',
+        'is_notify'
     ];
 
     /**
