@@ -47,14 +47,21 @@ class PostController extends Controller
         try {
             $post = Auth::user()->posts()->create($request->validated());
 
-            $tokens = User::whereNotNull('fcm_token')
+            $users = User::whereNotNull('fcm_token')
                 ->where('id', '!=', Auth::id())
-                ->pluck('fcm_token')
-                ->toArray();
+                ->get();
+            $tokens = $users->pluck('fcm_token')->toArray();
+            $userIds = $users->pluck('id')->toArray();
 
             $title = 'New Post';
             $body = 'A new post has been created.';
-            (new FirebaseNotificationService)->sendMulticastNotification($tokens, $title, $body);
+            (new FirebaseNotificationService)->sendMulticastNotification(
+                $tokens,
+                $title,
+                $body,
+                ['post_id' => $post->id],
+                $userIds
+            );
 
             return successResponse(
                 data: ['post' => $post],
@@ -154,7 +161,7 @@ class PostController extends Controller
                 message: 'Post not found with the given ID.',
                 statusCode: Response::HTTP_NOT_FOUND
             );
-        } 
+        }
         catch(AuthorizationException $e)
         {
             return errorResponse(

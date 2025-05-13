@@ -35,7 +35,13 @@ class SendMonthlyReminder extends Command
             $body = 'Time for solar panel maintenance.';
 
             try {
-                (new FirebaseNotificationService)->sendNotification($user->fcm_token, $title, $body);
+                (new FirebaseNotificationService)->sendNotification(
+                    $user->fcm_token,
+                    $title,
+                    $body,
+                    [],
+                    $user->id
+                );
             } catch (\Exception $e) {
                 $this->error('Failed to send notification to user ' . $user->id . ': ' . $e->getMessage());
             }

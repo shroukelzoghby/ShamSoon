@@ -50,7 +50,13 @@ class CommentController extends Controller
             if ($postOwner->fcm_token) {
                 $title = 'New Comment';
                 $body = 'Someone commented on your post.';
-                (new FirebaseNotificationService)->sendNotification($postOwner->fcm_token, $title, $body);
+                (new FirebaseNotificationService)->sendNotification(
+                    $postOwner->fcm_token,
+                    $title,
+                    $body,
+                    ['post_id' => $post->id],
+                    $postOwner->id
+                );
             }
             return successResponse(
                 data: ['comment' => $comment],
@@ -85,7 +91,7 @@ class CommentController extends Controller
                 message: 'comment updated successfully',
                 statusCode: Response::HTTP_OK
             );
-        } 
+        }
         catch(AuthorizationException $e)
         {
             return errorResponse(
