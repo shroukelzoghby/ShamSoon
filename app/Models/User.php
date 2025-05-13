@@ -57,10 +57,10 @@ class User extends Authenticatable implements FilamentUser
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        
+
         return $this->role->name === 'admin';
     }
-    
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -86,5 +86,10 @@ class User extends Authenticatable implements FilamentUser
     public function likes()
     {
         return $this->belongsToMany(Post::class,'like_post')->withTimestamps();
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }
