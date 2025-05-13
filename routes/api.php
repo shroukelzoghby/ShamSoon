@@ -32,7 +32,7 @@ Route::prefix('users')
         Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
         Route::get('auth/google',[SocialiteController::class,'redirectToGoogle']);
         Route::get('auth/google/callback',[SocialiteController::class,'handleGoogleCallback']);
-        
+
         // Private routes - Need authentication
         Route::middleware('auth:sanctum')
             ->group(function () {
@@ -48,7 +48,7 @@ Route::prefix('users')
             //posts-likes Routes
             Route::post('posts/{post}/like',[PostLikeController::class,'like'])->name('posts.like');
             Route::post('posts/{post}/unlike',[PostLikeController::class,'unlike'])->name('posts.unlike');
-            
+
             // Comment Routes
             Route::apiResource('posts.comments', CommentController::class)->except(['show']);
 
@@ -65,7 +65,8 @@ Route::prefix('users')
 
             Route::post('/store-fcm-token', [UserController::class, 'storeFcmToken']);
             Route::post('/notify-ai-result', [NotificationController::class, 'notifyAIResult']);
-              
+            Route::get('/notifications', [NotificationController::class, 'index']);
+
             //Profile
             Route::patch('/profile',[ProfileController::class,'update'])->name('profile.update');
             Route::delete('/profile',[ProfileController::class,'destroy'])->name('profile.destroy');

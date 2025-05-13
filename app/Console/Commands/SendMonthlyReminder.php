@@ -40,7 +40,7 @@ class SendMonthlyReminder extends Command
                     $title,
                     $body,
                     [],
-                    $user->id 
+                    $user->id
                 );
             } catch (\Exception $e) {
                 $this->error('Failed to send notification to user ' . $user->id . ': ' . $e->getMessage());
