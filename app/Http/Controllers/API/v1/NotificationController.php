@@ -66,4 +66,25 @@ class NotificationController extends Controller
             statusCode: Response::HTTP_OK
         );
     }
+
+    public function deleteNotification(Request $request, $id)
+    {
+        $notification = Notification::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (!$notification) {
+            return errorResponse(
+                message: 'Notification not found or unauthorized',
+                statusCode: Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $notification->delete();
+
+        return successResponse(
+            message: 'Notification deleted successfully',
+            statusCode: Response::HTTP_OK
+        );
+    }
 }
