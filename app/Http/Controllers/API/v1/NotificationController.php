@@ -20,19 +20,25 @@ class NotificationController extends Controller
             $body = $request->result;
 
             try {
-                (new FirebaseNotificationService)->sendNotification($user->fcm_token, $title, $body);
+                (new FirebaseNotificationService)->sendNotification(
+                    $user->fcm_token,
+                    $title,
+                    $body,
+                    [],
+                    $user->id 
+                );
             } catch (\Exception $e) {
                 Log::error('Failed to send Notification ' . $e->getMessage());
                 return errorResponse(
-                    message: 'An error occurred while Send notification',
+                    message: 'An error occurred while sending notification',
                     statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
                     errors: $e->getMessage()
                 );
             }
         }
         return successResponse(
-        message: "AI result notification sent",
-        statusCode: Response::HTTP_OK
+            message: "AI result notification sent",
+            statusCode: Response::HTTP_OK
         );
     }
 }
