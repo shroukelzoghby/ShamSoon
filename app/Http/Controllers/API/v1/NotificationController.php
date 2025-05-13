@@ -25,7 +25,7 @@ class NotificationController extends Controller
                     $title,
                     $body,
                     [],
-                    $user->id 
+                    $user->id
                 );
             } catch (\Exception $e) {
                 Log::error('Failed to send Notification ' . $e->getMessage());
