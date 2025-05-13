@@ -21,6 +21,10 @@ class NotificationController extends Controller
                 ->latest()
                 ->paginate(10);
 
+            Notification::where('user_id', $request->user()->id)
+                ->where('read', false)
+                ->update(['read' => true]);
+
             return successResponse(
                 data: ['notifications' => $notifications],
                 message: 'Notifications retrieved successfully',
@@ -95,6 +99,19 @@ class NotificationController extends Controller
         return successResponse(
             data: ['deleted_count' => $deleted],
             message: 'All notifications deleted successfully',
+            statusCode: Response::HTTP_OK
+        );
+    }
+
+    public function unreadNotificationCount(Request $request)
+    {
+        $count = Notification::where('user_id', $request->user()->id)
+            ->where('read', false)
+            ->count();
+
+        return successResponse(
+            data: ['unread_count' => $count],
+            message: 'Unread notification count retrieved successfully',
             statusCode: Response::HTTP_OK
         );
     }

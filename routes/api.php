@@ -70,6 +70,7 @@ Route::prefix('users')
             Route::get('/notification-permission', [UserController::class, 'getNotificationPermission']);
             Route::delete('/notifications/{id}', [NotificationController::class, 'deleteNotification']);
             Route::delete('/notifications', [NotificationController::class, 'deleteAllNotifications']);
+            Route::get('/notifications/unread-count', [NotificationController::class, 'unreadNotificationCount']);
 
             //Profile
             Route::patch('/profile',[ProfileController::class,'update'])->name('profile.update');
