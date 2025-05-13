@@ -39,7 +39,7 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        if ($user->fcm_token) {
+        if ($user->is_notify && $user->fcm_token) {
             $title = 'AI Result';
             $body = $request->result;
 
@@ -52,7 +52,7 @@ class NotificationController extends Controller
                     $user->id
                 );
             } catch (\Exception $e) {
-                Log::error('Failed to send Notification ' . $e->getMessage());
+                Log::error('Failed to send Notification: ' . $e->getMessage());
                 return errorResponse(
                     message: 'An error occurred while sending notification',
                     statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -60,8 +60,9 @@ class NotificationController extends Controller
                 );
             }
         }
+
         return successResponse(
-            message: "AI result notification sent",
+            message: $user->is_notify ? 'AI result notification sent' : 'Notifications disabled',
             statusCode: Response::HTTP_OK
         );
     }
