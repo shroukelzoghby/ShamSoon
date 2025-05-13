@@ -87,4 +87,15 @@ class NotificationController extends Controller
             statusCode: Response::HTTP_OK
         );
     }
+
+    public function deleteAllNotifications(Request $request)
+    {
+        $deleted = Notification::where('user_id', $request->user()->id)->delete();
+
+        return successResponse(
+            data: ['deleted_count' => $deleted],
+            message: 'All notifications deleted successfully',
+            statusCode: Response::HTTP_OK
+        );
+    }
 }

@@ -69,6 +69,7 @@ Route::prefix('users')
             Route::post('/notification-permission', [UserController::class, 'setNotificationPermission']);
             Route::get('/notification-permission', [UserController::class, 'getNotificationPermission']);
             Route::delete('/notifications/{id}', [NotificationController::class, 'deleteNotification']);
+            Route::delete('/notifications', [NotificationController::class, 'deleteAllNotifications']);
 
             //Profile
             Route::patch('/profile',[ProfileController::class,'update'])->name('profile.update');
