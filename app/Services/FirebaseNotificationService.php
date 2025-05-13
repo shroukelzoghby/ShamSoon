@@ -16,7 +16,7 @@ class FirebaseNotificationService
     public function __construct()
     {
         $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/firebase/shamsoon-f7732-565282bc1e72.json'));
+            ->withServiceAccount(storage_path('app/firebase/shamsoon-5d661-76564d8307a7.json'));
 
         $this->messaging = $factory->createMessaging();
     }
