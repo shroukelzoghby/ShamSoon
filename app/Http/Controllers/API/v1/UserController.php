@@ -40,14 +40,4 @@ class UserController extends Controller
         );
     }
 
-    public function getNotificationPermission(Request $request)
-    {
-        $user = $request->user();
-        return successResponse(
-            data: ['is_notify' => $user->is_notify],
-            message: 'Notification permission retrieved successfully',
-            statusCode: Response::HTTP_OK
-        );
-    }
-
 }

@@ -67,7 +67,6 @@ Route::prefix('users')
             Route::post('/notify-ai-result', [NotificationController::class, 'notifyAIResult']);
             Route::get('/notifications', [NotificationController::class, 'index']);
             Route::post('/notification-permission', [UserController::class, 'setNotificationPermission']);
-            Route::get('/notification-permission', [UserController::class, 'getNotificationPermission']);
             Route::delete('/notifications/{id}', [NotificationController::class, 'deleteNotification']);
             Route::delete('/notifications', [NotificationController::class, 'deleteAllNotifications']);
             Route::get('/notifications/unread-count', [NotificationController::class, 'unreadNotificationCount']);
