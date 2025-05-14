@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\API\v1\PostRequest;
 use App\Http\Resources\API\v1\PostResource;
 use App\Services\FirebaseNotificationService;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -49,29 +50,37 @@ class PostController extends Controller
 
             $users = User::whereNotNull('fcm_token')
                 ->where('id', '!=', Auth::id())
+                ->where('is_notify', true)
                 ->get();
+
             $tokens = $users->pluck('fcm_token')->toArray();
             $userIds = $users->pluck('id')->toArray();
 
-            $title = 'New Post';
-            $body = 'A new post has been created.';
-            (new FirebaseNotificationService)->sendMulticastNotification(
-                $tokens,
-                $title,
-                $body,
-                ['post_id' => $post->id],
-                $userIds
-            );
+            if (!empty($tokens) && !empty($userIds)) {
+                $title = 'New Post';
+                $body = 'A new post has been created.';
+                (new FirebaseNotificationService)->sendMulticastNotification(
+                    $tokens,
+                    $title,
+                    $body,
+                    ['post_id' => (string) $post->id],
+                    $userIds
+                );
+            } else {
+                Log::info("No users to notify for new post", ['post_id' => $post->id]);
+            }
 
             return successResponse(
                 data: ['post' => $post],
-                message: 'Post created successfully and Notification sent',
+                message: 'Post created successfully and notifications sent',
                 statusCode: Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
+            Log::error("Failed to create post or send notifications: {$e->getMessage()}", ['trace' => $e->getTraceAsString()]);
             return errorResponse(
                 message: 'An error occurred while creating the post.',
-                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR
+                statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+                errors: $e->getMessage()
             );
         }
     }
