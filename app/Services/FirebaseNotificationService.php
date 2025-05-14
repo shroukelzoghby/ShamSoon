@@ -3,6 +3,7 @@
 namespace App\Services;
 use App\Models\Notification;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
@@ -49,30 +50,43 @@ class FirebaseNotificationService
         }
     }
 
-    public function sendMulticastNotification(array $tokens, $title, $body, $data = [], $userIds = [])
+    public function sendMulticastNotification($tokens, $title, $body, $data = [], $userIds = [])
     {
         try {
-            $messages = [];
-            foreach ($tokens as $index => $token) {
-                $messages[] = CloudMessage::withTarget('token', $token)
-                    ->withNotification(FirebaseNotification::create($title, $body))
-                    ->withData($data);
-
-
-                if (isset($userIds[$index])) {
-                    Notification::create([
-                        'user_id' => $userIds[$index],
-                        'title' => $title,
-                        'body' => $body,
-                        'data' => $data,
-                    ]);
-                }
+            if (empty($tokens) || empty($userIds)) {
+                Log::warning("No valid tokens or user IDs provided for multicast notification");
+                return false;
             }
 
-            $this->messaging->sendAll($messages);
+            if (count($tokens) !== count($userIds)) {
+                Log::error("Mismatch between tokens and user IDs", [
+                    'token_count' => count($tokens),
+                    'user_id_count' => count($userIds)
+                ]);
+                throw new Exception("Mismatch between tokens and user IDs");
+            }
+
+            $message = CloudMessage::new()
+                ->withNotification(FirebaseNotification::create($title, $body))
+                ->withData($data);
+
+            $response = $this->messaging->sendMulticast($message, $tokens);
+
+            foreach ($userIds as $index => $userId) {
+                Notification::create([
+                    'user_id' => $userId,
+                    'title' => $title,
+                    'body' => $body,
+                    'data' => $data,
+                ]);
+                Log::info("Notification stored for user $userId: $title");
+            }
+
+            Log::info("Multicast notification sent to " . count($tokens) . " tokens: $title", ['response' => $response]);
             return true;
         } catch (Exception $e) {
-            throw new Exception("Failed to send notification: " . $e->getMessage());
+            Log::error("Failed to send multicast notification: {$e->getMessage()}", ['trace' => $e->getTraceAsString()]);
+            throw new Exception("Failed to send multicast notification: " . $e->getMessage());
         }
     }
 }
