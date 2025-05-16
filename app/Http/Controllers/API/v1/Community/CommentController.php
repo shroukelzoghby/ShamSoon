@@ -42,14 +42,15 @@ class CommentController extends Controller
     {
         try {
             $comment = $post->comments()->create([
-                'content' => $request->content,
+                'content' => $request->input('content'),
                 'user_id' => Auth::id(),
             ]);
 
             $postOwner = $post->user;
             if ($postOwner->is_notify && $postOwner->fcm_token) {
+                $commenter = Auth::user();
                 $title = 'New Comment';
-                $body = 'Someone commented on your post.';
+                $body = "{$commenter->username} commented on your post.";
                 (new FirebaseNotificationService)->sendNotification(
                     $postOwner->fcm_token,
                     $title,

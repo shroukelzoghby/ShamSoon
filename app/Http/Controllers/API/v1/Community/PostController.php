@@ -58,7 +58,7 @@ class PostController extends Controller
 
             if (!empty($tokens) && !empty($userIds)) {
                 $title = 'New Post';
-                $body = 'A new post has been created.';
+                $body = Auth::user()->username . ' created a new post.';
                 (new FirebaseNotificationService)->sendMulticastNotification(
                     $tokens,
                     $title,
