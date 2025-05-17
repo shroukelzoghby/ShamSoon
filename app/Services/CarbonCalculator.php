@@ -11,7 +11,7 @@ class CarbonCalculator
 
     public static function calculateEquivalentTreesPlanted($co2Saved)
     {
-        return $co2Saved / 22;
+        return round($co2Saved / 22, 4);
     }
 
 }
