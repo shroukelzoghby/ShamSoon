@@ -30,7 +30,7 @@ class SendMonthlyReminder extends Command
 
         $now = now()->format('Y-m-d H:i');
 
-        $users = User::whereNotNull('reminder_datetime')
+        $users = User::whereNotNull('reminder_date')
             ->whereRaw("DATE_FORMAT(reminder_date, '%Y-%m-%d %H:%i') = ?", [$now])
             ->whereNotNull('fcm_token')
             ->where('is_notify', true)
