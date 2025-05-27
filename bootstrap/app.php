@@ -20,6 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('reminder:monthly')->monthly();
+        $schedule->command('reminder:monthly')->everyMinute();
     })
     ->create();
