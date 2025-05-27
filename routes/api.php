@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\v1\ReminderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\v1\UserController;
 use App\Http\Controllers\API\v1\CarbonController;
@@ -77,6 +78,8 @@ Route::prefix('users')
 
             //Weather
             Route::get('/weather', [WeatherController::class, 'getWeather']);
+
+            Route::post('/reminder/update', [ReminderController::class, 'updateReminderDatetime'])->name('reminder.update');
 
 
 
