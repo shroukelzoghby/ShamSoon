@@ -14,6 +14,7 @@
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.18",
+        "laravel/telescope": "^5.8",
         "laravel/tinker": "^2.9"
     },
     "require-dev": {
